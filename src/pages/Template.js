@@ -147,16 +147,18 @@ function Template() {
     };
 
     // Handle click to display content in the center panel
-    const handleContentSelect = (content) => {
-        if (content === 'Logo') {
-            setSelectedContent('Logo');
-        } else if (content === 'Sign-off Authority') {
-            setSelectedContent('Customer sign-off authority content...'); // Add the actual content here
-        } else {
-            console.log("Selected Content:", content); 
-            setSelectedContent(content);
-        }
-    };
+// Handle click to display content in the center panel
+const handleContentSelect = (content) => {
+    if (content === 'Logo' || content === 'Vendor logo content...') {
+        setSelectedContent(content); // Allow both Customer and Vendor logo to trigger the same logic
+    } else if (content === 'Customer sign-off authority content...') {
+        setSelectedContent('Customer sign-off authority content...');
+    } else {
+        setSelectedContent(content);
+    }
+};
+
+    
     
     
 
@@ -206,7 +208,7 @@ function Template() {
     };
 
     return (
-        <div className="flex h-screen w-auto mb-9 onMouseMove={handleResize} onMouseUp={stopResizing}"
+        <div className="flex h-screen w-auto mb-3 onMouseMove={handleResize} onMouseUp={stopResizing}"
         onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}>
             {/* Left Sidebar with scrolling */}
@@ -244,7 +246,7 @@ function Template() {
             )}
 
             {/* Document Structure - Headings and Sub-headings */}
-            <div className="mt-8 space-y-2 overflow-y-auto" style={{ maxHeight: '60vh' }}>
+            <div className="mt-8 space-y-2 overflow-y-scroll" style={{ maxHeight: '75vh' }}>
                 {documentStructure.map(section => (
                     <div key={section.id}>
                         <h3
@@ -285,14 +287,14 @@ function Template() {
                                         )}
                                     </div>
                                 ))}
-                                {/* {section.content && (
+                                {section.content && (
                                     <p
                                         className="cursor-pointer text-gray-600"
                                         onClick={() => handleContentSelect(section.content)}
                                     >
                                         {section.content}
                                     </p>
-                                )} */}
+                                )}
                             </div>
                         )}
                     </div>
@@ -304,12 +306,12 @@ function Template() {
 
 
 
-            <button
+            {/* <button
                 className="bg-blue-600 text-white py-2 px-4 mt-10 rounded hover:bg-blue-700 w-full"
                 onClick={() => navigate('/final')}
             >
                 Next
-            </button>
+            </button> */}
         </div>
          {/* Resizer */}
          <div className="w-1 bg-gray-400 cursor-col-resize" onMouseDown={startResizing}></div>
@@ -318,7 +320,7 @@ function Template() {
     <div className="flex-grow p-4 w-full flex justify-center ">
         <div className="text-center">
             <h2 className="text-xl font-bold mb-4">Selected Section</h2>
-            {selectedContent === 'Logo' ? (
+            {(selectedContent === 'Logo' || selectedContent === 'Vendor logo content...') ? (
                         <div className='flex flex-col justify-center items-center mt-16'>
                             <div
                                 className="border-dashed border-4 border-gray-400 p-8 rounded-lg w-80 cursor-pointer"
@@ -330,7 +332,7 @@ function Template() {
                                     htmlFor="logoUpload"
                                     className="cursor-pointer bg-gray-500 text-white p-2 rounded-lg mt-4 block"
                                 >
-                                    Upload Logo
+                                    Upload {selectedContent === 'Vendor logo content...' ? 'Vendor Logo' : 'Customer Logo'}
                                 </label>
                                 <input
                                     type="file"
@@ -369,47 +371,21 @@ function Template() {
             ) : 
             
             
-            selectedContent === 'Sign-off Authority' ? (
+             selectedContent === 'Customer sign-off authority content...' ? ( // Matching with the actual content
                 <div>
-                    <form onSubmit={handleSignOffSubmit} className="space-y-4">
-                        <input
-                            type="text"
-                            placeholder="Customer Name"
-                            value={customerName}
-                            onChange={(e) => setCustomerName(e.target.value)}
-                            required
-                            className="border p-2 rounded w-full"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Project Name"
-                            value={projectName}
-                            onChange={(e) => setProjectName(e.target.value)}
-                            required
-                            className="border p-2 rounded w-full"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Project Type"
-                            value={projectType}
-                            onChange={(e) => setProjectType(e.target.value)}
-                            required
-                            className="border p-2 rounded w-full"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Warehouse Number"
-                            value={warehouseNumber}
-                            onChange={(e) => setWarehouseNumber(e.target.value)}
-                            required
-                            className="border p-2 rounded w-full"
-                        />
-                        <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
-                            Submit
-                        </button>
-                    </form>
+                    <h1 className='text-2xl mb-2'>Sign-off Authority</h1>
+                    <div className='flex justify-center'>
+                        <form onSubmit={handleSignOffSubmit} className="space-y-4 w-auto">
+                            {/* Input fields for customer sign-off authority */}
+                            <input type="text" placeholder="Customer Name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} required className="border p-2 rounded w-full" />
+                            <input type="text" placeholder="Project Name" value={projectName} onChange={(e) => setProjectName(e.target.value)} required className="border p-2 rounded w-full" />
+                            <input type="text" placeholder="Project Type" value={projectType} onChange={(e) => setProjectType(e.target.value)} required className="border p-2 rounded w-full" />
+                            <input type="text" placeholder="Warehouse Number" value={warehouseNumber} onChange={(e) => setWarehouseNumber(e.target.value)} required className="border p-2 rounded w-full" />
+                            <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Submit</button>
+                        </form>
+                    </div>
                 </div>
-            ) :
+            ) : 
             
             
             
@@ -424,20 +400,21 @@ function Template() {
     <div className="w-1/3 bg-gray-50 p-6 space-y-4 border-l border-gray-300 shadow-lg" style={{ maxHeight: '100vh' }}>
         <h2 className="text-xl font-bold text-gray-700 mb-4">Document Preview</h2>
 
-        <div className="bg-white rounded-lg overflow-hidden shadow-inner h-full flex items-center justify-center">
+        {/* <div className="bg-white rounded-lg overflow-hidden shadow-inner h-full flex items-center justify-center">
             {previewDocument ? (
                 <iframe
                     src={previewDocument}
                     title="Document Preview"
+                    
                     className="w-full h-full rounded-lg border-none"
-                    style={{ minHeight: '500px' }}
+                    style={{ minHeight: '250px' }}
                 />
             ) : (
                 <div className="flex items-center justify-center text-gray-500">
                     <p>No template selected. Please select a template to preview the document.</p>
                 </div>
             )}
-        </div>
+        </div> */}
     </div>
         </div >
     );
