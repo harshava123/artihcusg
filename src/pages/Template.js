@@ -87,8 +87,44 @@ function Template() {
     const [showTemplates, setShowTemplates] = useState(false);
     const [openSections, setOpenSections] = useState({});
     const [logo, setLogo] = useState(null); // State to store uploaded logo
+    const [sidebarWidth, setSidebarWidth] = useState(350); // Initial width of the sidebar
+    const [isResizing, setIsResizing] = useState(0);
+    const [percentage, setPercentage] = useState(0); // Percentage for the progress bar
+    const [savedMessage, setSavedMessage] = useState(''); // State for saved message
+    const [customerName, setCustomerName] = useState('');
+    const [projectName, setProjectName] = useState('');
+    const [projectType, setProjectType] = useState('');
+    const [warehouseNumber, setWarehouseNumber] = useState('');
     const navigate = useNavigate();
 
+    const handleMouseDown = (e) => {
+        setIsResizing(true);
+    };
+
+    const handleMouseMove = (e) => {
+        if (isResizing) {
+            setSidebarWidth(e.clientX);
+        }
+    };
+    const handleMouseUp = () => {
+        setIsResizing(false);
+    };
+    const startResizing = () => {
+        setIsResizing(true);
+    };
+
+    const stopResizing = () => {
+        setIsResizing(false);
+    };
+
+    const handleResize = (e) => {
+        if (isResizing) {
+            const newWidth = e.clientX;
+            if (newWidth >= 150 && newWidth <= 500) { // Set min/max width limits
+                setSidebarWidth(newWidth);
+            }
+        }
+    };
     // Handle template selection
     const handleTemplateSelect = (id) => {
         setSelectedTemplate(id);
@@ -114,9 +150,28 @@ function Template() {
     const handleContentSelect = (content) => {
         if (content === 'Logo') {
             setSelectedContent('Logo');
+        } else if (content === 'Sign-off Authority') {
+            setSelectedContent('Customer sign-off authority content...'); // Add the actual content here
         } else {
+            console.log("Selected Content:", content); 
             setSelectedContent(content);
         }
+    };
+    
+    
+
+    const handleSignOffSubmit = (e) => {
+        e.preventDefault();
+        // Handle form submission, e.g., save to state, API call, etc.
+        console.log("Customer Name:", customerName);
+        console.log("Project Name:", projectName);
+        console.log("Project Type:", projectType);
+        console.log("Warehouse Number:", warehouseNumber);
+        // Reset the form after submission
+        setCustomerName('');
+        setProjectName('');
+        setProjectType('');
+        setWarehouseNumber('');
     };
 
     // Handle logo upload
@@ -124,18 +179,43 @@ function Template() {
         const file = event.target.files[0];
         if (file) {
             const imageUrl = URL.createObjectURL(file);
-            setLogo(imageUrl); // Store the uploaded image URL
+            setLogo(imageUrl);
+            setPercentage(0); // Reset percentage when a new logo is uploaded
+        }
+    };
+
+    const handleSave = () => {
+        if (logo) { // Check if a logo has been uploaded
+            setPercentage(100); // Set percentage to 100% when saved
+            setSavedMessage('Logo saved successfully!'); // Set saved message
+        } else {
+            alert("Please upload a logo before saving.");
+        }
+    };
+    const handleDragOver = (event) => {
+        event.preventDefault(); // Prevent default behavior (Prevent file from being opened)
+    };
+    const handleDrop = (event) => {
+        event.preventDefault(); // Prevent default behavior
+        const file = event.dataTransfer.files[0]; // Get the dropped file
+        if (file) {
+            const imageUrl = URL.createObjectURL(file);
+            setLogo(imageUrl);
+            setPercentage(0); // Reset percentage when a new logo is uploaded
         }
     };
 
     return (
-        <div className="flex h-screen w-auto mb-9">
+        <div className="flex h-screen w-auto mb-9 onMouseMove={handleResize} onMouseUp={stopResizing}"
+        onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}>
             {/* Left Sidebar with scrolling */}
-            <div className="w-60 bg-gray-100 p-4 space-y-5 border-r border-gray-300" style={{ maxHeight: '100vh' }}>
+            <div className=" bg-gray-100 p-4 space-y-5 border-r border-gray-300" 
+            style={{ width: `${sidebarWidth}px`, maxHeight: '100vh' }}>
                 {/* Template Icons */}
                 <div className='flex items-center mb-6'>
                 <button 
-                    className="bg-blue-600 text-white p-2 rounded"
+                    className="bg-gray-700 text-white p-2 rounded"
                     onClick={() => setShowTemplates(!showTemplates)} // Toggle visibility on button click
                 >
                     <CgTemplate />
@@ -205,14 +285,14 @@ function Template() {
                                         )}
                                     </div>
                                 ))}
-                                {section.content && (
+                                {/* {section.content && (
                                     <p
                                         className="cursor-pointer text-gray-600"
                                         onClick={() => handleContentSelect(section.content)}
                                     >
                                         {section.content}
                                     </p>
-                                )}
+                                )} */}
                             </div>
                         )}
                     </div>
@@ -231,37 +311,109 @@ function Template() {
                 Next
             </button>
         </div>
+         {/* Resizer */}
+         <div className="w-1 bg-gray-400 cursor-col-resize" onMouseDown={startResizing}></div>
 
             {/* Center Panel for Content Display */ }
     <div className="flex-grow p-4 w-full flex justify-center ">
         <div className="text-center">
             <h2 className="text-xl font-bold mb-4">Selected Section</h2>
             {selectedContent === 'Logo' ? (
-                <div className='flex  justify-center items-center mt-15'>
-                    <label
-                        htmlFor="logoUpload"
-                        className="cursor-pointer bg-blue-500 text-white p-2 rounded-lg"
-                    >
-                        Upload Logo
-                    </label>
-                    <input
-                        type="file"
-                        id="logoUpload"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={handleLogoUpload}
-                    />
-                    {logo && (
-                        <div className="mt-4">
-                            <img
-                                src={logo}
-                                alt="Uploaded Logo"
-                                className="w-40 h-40 object-contain mx-auto"
-                            />
+                        <div className='flex flex-col justify-center items-center mt-16'>
+                            <div
+                                className="border-dashed border-4 border-gray-400 p-8 rounded-lg w-80 cursor-pointer"
+                                onDragOver={handleDragOver}
+                                onDrop={handleDrop}
+                            >
+                                <p className="text-center text-gray-500">Drag and drop your logo here or click to upload</p>
+                                <label
+                                    htmlFor="logoUpload"
+                                    className="cursor-pointer bg-gray-500 text-white p-2 rounded-lg mt-4 block"
+                                >
+                                    Upload Logo
+                                </label>
+                                <input
+                                    type="file"
+                                    id="logoUpload"
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    onChange={handleLogoUpload}
+                                />
+                            </div>
+                            {logo && (
+                                <div className="mt-4">
+                                    <img
+                                        src={logo}
+                                        alt="Uploaded Logo"
+                                        className="w-40 h-40 object-contain mx-auto"
+                                    />
+                                </div>
+                            )}
+                      
+                      <button
+                            className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-green-600"
+                            onClick={handleSave}
+                        >
+                            Save
+                        </button>
+                 
+                 {savedMessage && <p className="mt-2 text-green-600">{savedMessage}</p>}
+                            
+                            <div className="mt-4 w-full bg-gray-200 rounded-full h-4">
+                                <div
+                                    className="bg-green-500 h-full rounded-full"
+                                    style={{ width: `${percentage}%` }}
+                                />
+                            </div>
                         </div>
-                    )}
+            ) : 
+            
+            
+            selectedContent === 'Sign-off Authority' ? (
+                <div>
+                    <form onSubmit={handleSignOffSubmit} className="space-y-4">
+                        <input
+                            type="text"
+                            placeholder="Customer Name"
+                            value={customerName}
+                            onChange={(e) => setCustomerName(e.target.value)}
+                            required
+                            className="border p-2 rounded w-full"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Project Name"
+                            value={projectName}
+                            onChange={(e) => setProjectName(e.target.value)}
+                            required
+                            className="border p-2 rounded w-full"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Project Type"
+                            value={projectType}
+                            onChange={(e) => setProjectType(e.target.value)}
+                            required
+                            className="border p-2 rounded w-full"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Warehouse Number"
+                            value={warehouseNumber}
+                            onChange={(e) => setWarehouseNumber(e.target.value)}
+                            required
+                            className="border p-2 rounded w-full"
+                        />
+                        <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                            Submit
+                        </button>
+                    </form>
                 </div>
-            ) : (
+            ) :
+            
+            
+            
+            (
                 <p>{selectedContent || 'No content selected...'}</p>
             )}
         </div>
