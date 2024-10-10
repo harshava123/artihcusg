@@ -12,8 +12,8 @@ import { CgTemplate } from "react-icons/cg";
 // Sample data for document templates
 const templates = [
     { id: 1, name: '1', document: docu },
-    { id: 2, name: '2', document: docu},
-    { id: 3, name: '3', document: docu},
+    { id: 2, name: '2', document: docu },
+    { id: 3, name: '3', document: docu },
     { id: 4, name: 'Add', document: doc1 },  // Integrated Template 4
 ];
 
@@ -96,10 +96,19 @@ function Template() {
     const [projectType, setProjectType] = useState('');
     const [warehouseNumber, setWarehouseNumber] = useState('');
     const navigate = useNavigate();
+    const [isPreviewVisible, setIsPreviewVisible] = useState(true);
 
+    const handleClosePreview = () => {
+        console.log('Close button clicked'); // Debugging log
+        setIsPreviewVisible(false);
+    };
     const handleMouseDown = (e) => {
         setIsResizing(true);
     };
+        // Function to handle closing the selected content
+        const handleCloseContent = () => {
+            setSelectedContent('No content selected'); // Reset selected content
+        };
 
     const handleMouseMove = (e) => {
         if (isResizing) {
@@ -126,19 +135,21 @@ function Template() {
         }
     };
     // Handle template selection
-    const handleTemplateSelect = (id) => {
-        setSelectedTemplate(id);
-        const selected = templates.find(template => template.id === id);
-        if (selected) {
-            
-            setPreviewDocument(selected.document);
+   // Handle template selection
+const handleTemplateSelect = (id) => {
+    setSelectedTemplate(id);
+    const selected = templates.find(template => template.id === id);
+    if (selected) {
+        setPreviewDocument(selected.document);
+        setIsPreviewVisible(true); // Show the preview section when a template is clicked
 
-            // Automatically navigate to WordEditor if Template 4 is selected
-            if (id === 4) {
-                navigate('/editor', { state: { templateId: id } });
-            }
+        // Automatically navigate to WordEditor if Template 4 is selected
+        if (id === 4) {
+            navigate('/editor', { state: { templateId: id } });
         }
-    };
+    }
+};
+
 
     // Toggle section for showing sub-headings or sub-sub-headings
     const toggleSection = (id) => {
@@ -146,20 +157,23 @@ function Template() {
     };
 
     // Handle click to display content in the center panel
-// Handle click to display content in the center panel
-const handleContentSelect = (content) => {
-    if (content === 'Logo' || content === 'Vendor logo content...') {
-        setSelectedContent(content); // Allow both Customer and Vendor logo to trigger the same logic
-    } else if (content === 'Customer sign-off authority content...') {
-        setSelectedContent('Customer sign-off authority content...');
-    } else {
-        setSelectedContent(content);
-    }
-};
+    // Handle click to display content in the center panel
+    const handleContentSelect = (content) => {
+        if (content === 'Logo' || content === 'Vendor logo content...') {
+            setSelectedContent(content);
+        } else if (content === 'Customer sign-off authority content...') {
+            setSelectedContent('Customer sign-off authority content...');
+        } else if (content.startsWith('-')) {
+            // When a heading with a dash is clicked
+            setSelectedContent('No content selected');
+        } else {
+            setSelectedContent(content);
+        }
+    };
 
-    
-    
-    
+
+
+
 
     const handleSignOffSubmit = (e) => {
         e.preventDefault();
@@ -208,118 +222,129 @@ const handleContentSelect = (content) => {
 
     return (
         <div className="flex h-screen w-auto mb-3 onMouseMove={handleResize} onMouseUp={stopResizing}"
-        onMouseMove={handleMouseMove}
+            onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}>
             {/* Left Sidebar with scrolling */}
-            <div className=" bg-gray-100 p-4 space-y-5 border-r border-gray-300" 
-            style={{ width: `${sidebarWidth}px`, maxHeight: '100vh' }}>
+            <div className=" bg-gray-100 p-4 space-y-5 border-r border-gray-300"
+                style={{ width: `${sidebarWidth}px`, maxHeight: '100vh' }}>
                 {/* Template Icons */}
                 <div className='flex items-center mb-6'>
-                <button 
-                    className="bg-gray-700 text-white p-2 rounded"
-                    onClick={() => setShowTemplates(!showTemplates)} // Toggle visibility on button click
-                >
-                    <CgTemplate />
-                </button>
-                <h2 className="text-xl font-bold ml-4">Templates</h2>
-            </div>
+                    <button
+                        className="bg-gray-700 text-white p-2 rounded"
+                        onClick={() => setShowTemplates(!showTemplates)} // Toggle visibility on button click
+                    >
+                        <CgTemplate />
+                    </button>
+                    <h2 className="text-xl font-bold ml-4">Templates</h2>
+                </div>
                 {/* Display templates only if showTemplates is true */}
                 {showTemplates && (
-                <div className="space-y-4 flex flex-row gap-5 mt-10">
-                    {templates.map((template) => (
-                        <div
-                            key={template.id}
-                            className={`relative cursor-pointer p-2 rounded-md transition-transform duration-200 hover:scale-105 ${selectedTemplate === template.id ? 'bg-blue-100' : 'bg-white'}`}
-                            onClick={() => handleTemplateSelect(template.id)}
-                        >
-                            <div className="flex justify-center">
+                    <div className="space-y-4 flex flex-row gap-5 mt-10">
+                        {templates.map((template) => (
+                            <div
+                                key={template.id}
+                                className={`relative cursor-pointer p-2 rounded-md transition-transform duration-200 hover:scale-105 ${selectedTemplate === template.id ? 'bg-blue-100' : 'bg-white'}`}
+                                onClick={() => handleTemplateSelect(template.id)}
+                            >
+                                <div className="flex justify-center">
                                     <CgTemplate className="" />
                                 </div>
-                            <p className="text-center mt-2 text-sm truncate">{template.name}</p>
-                            {selectedTemplate === template.id && (
-                                <div className="absolute top-2 right-2 text-2xl text-green-500">✔️</div>
+                                <p className="text-center mt-2 text-sm truncate">{template.name}</p>
+                                {selectedTemplate === template.id && (
+                                    <div className="absolute top-2 right-2 text-2xl text-green-500">✔️</div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Document Structure - Headings and Sub-headings */}
+                <div className="mt-8 space-y-2 overflow-y-scroll" style={{ maxHeight: '75vh' }}>
+                    {documentStructure.map(section => (
+                        <div key={section.id}>
+                            <h3
+                                className="font-bold text-lg cursor-pointer flex items-center"
+                                onClick={() => toggleSection(section.id)}
+                            >
+                                {openSections[section.id] ? '-' : '+'} {section.title}
+                            </h3>
+                            {openSections[section.id] && (
+                                <div className="pl-4 space-y-1">
+                                    {section.subHeadings && section.subHeadings.map(sub => (
+                                        <div key={sub.id}>
+                                            <h4
+                                                className="cursor-pointer text-blue-700"
+                                                onClick={() => toggleSection(sub.id)}
+                                            >
+                                                {openSections[sub.id] ? '-' : '+'} {sub.title}
+                                            </h4>
+                                            {openSections[sub.id] && (
+                                                <div className="pl-4">
+                                                    {sub.subSubHeadings ? sub.subSubHeadings.map(subSub => (
+                                                        <p
+                                                            key={subSub.id}
+                                                            className="cursor-pointer text-gray-600"
+                                                            onClick={() => handleContentSelect(subSub.content)}
+                                                        >
+                                                            {subSub.title}
+                                                        </p>
+                                                    )) : (
+                                                        <p
+                                                            className="cursor-pointer text-gray-600"
+                                                            onClick={() => handleContentSelect(sub.content)}
+                                                        >
+                                                            {sub.title}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {section.content && (
+                                        <p
+                                            className="cursor-pointer text-gray-600"
+                                            onClick={() => handleContentSelect(section.content)}
+                                        >
+                                            {section.content}
+                                        </p>
+                                    )}
+                                </div>
                             )}
                         </div>
                     ))}
                 </div>
-            )}
-
-            {/* Document Structure - Headings and Sub-headings */}
-            <div className="mt-8 space-y-2 overflow-y-scroll" style={{ maxHeight: '75vh' }}>
-                {documentStructure.map(section => (
-                    <div key={section.id}>
-                        <h3
-                            className="font-bold text-lg cursor-pointer flex items-center"
-                            onClick={() => toggleSection(section.id)}
-                        >
-                            {openSections[section.id] ? '-' : '+'} {section.title}
-                        </h3>
-                        {openSections[section.id] && (
-                            <div className="pl-4 space-y-1">
-                                {section.subHeadings && section.subHeadings.map(sub => (
-                                    <div key={sub.id}>
-                                        <h4
-                                            className="cursor-pointer text-blue-700"
-                                            onClick={() => toggleSection(sub.id)}
-                                        >
-                                            {openSections[sub.id] ? '-' : '+'} {sub.title}
-                                        </h4>
-                                        {openSections[sub.id] && (
-                                            <div className="pl-4">
-                                                {sub.subSubHeadings ? sub.subSubHeadings.map(subSub => (
-                                                    <p
-                                                        key={subSub.id}
-                                                        className="cursor-pointer text-gray-600"
-                                                        onClick={() => handleContentSelect(subSub.content)}
-                                                    >
-                                                        {subSub.title}
-                                                    </p>
-                                                )) : (
-                                                    <p
-                                                        className="cursor-pointer text-gray-600"
-                                                        onClick={() => handleContentSelect(sub.content)}
-                                                    >
-                                                        {sub.title}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                                {section.content && (
-                                    <p
-                                        className="cursor-pointer text-gray-600"
-                                        onClick={() => handleContentSelect(section.content)}
-                                    >
-                                        {section.content}
-                                    </p>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
 
 
 
 
 
 
-            {/* <button
+                {/* <button
                 className="bg-blue-600 text-white py-2 px-4 mt-10 rounded hover:bg-blue-700 w-full"
                 onClick={() => navigate('/final')}
             >
                 Next
             </button> */}
-        </div>
-         {/* Resizer */}
-         <div className="w-1 bg-gray-400 cursor-col-resize" onMouseDown={startResizing}></div>
+            </div>
+            {/* Resizer */}
+            <div className="w-1 bg-gray-400 cursor-col-resize" onMouseDown={startResizing}></div>
 
-            {/* Center Panel for Content Display */ }
-    <div className="flex-grow p-4 w-full flex justify-center ">
-        <div className="text-center">
-            <h2 className="text-xl font-bold mb-4">Selected Section</h2>
-            {(selectedContent === 'Logo' || selectedContent === 'Vendor logo content...') ? (
+            {/* Center Panel for Content Display */}
+            <div className="flex-grow p-4 w-full flex justify-center ">
+                <div className="text-center">
+                    <h2 className="text-xl font-bold mb-4">Selected Section</h2>
+                     <div className="flex justify-between items-center">
+                        <h3 className="text-lg">{selectedContent ? selectedContent : ""}</h3>
+                        {selectedContent && (
+                            <button
+                                onClick={handleCloseContent}
+                                className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                                >
+                                    &#x2715;
+                            </button>
+                        )}
+                    </div>
+                    {(selectedContent === 'Logo' || selectedContent === 'Vendor logo content...') ? (
                         <div className='flex flex-col justify-center items-center mt-16'>
                             <div
                                 className="border-dashed border-4 border-gray-400 p-8 rounded-lg w-80 cursor-pointer"
@@ -350,16 +375,16 @@ const handleContentSelect = (content) => {
                                     />
                                 </div>
                             )}
-                      
-                      <button
-                            className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-green-600"
-                            onClick={handleSave}
-                        >
-                            Save
-                        </button>
-                 
-                 {savedMessage && <p className="mt-2 text-green-600">{savedMessage}</p>}
-                            
+
+                            <button
+                                className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-green-600"
+                                onClick={handleSave}
+                            >
+                                Save
+                            </button>
+
+                            {savedMessage && <p className="mt-2 text-green-600">{savedMessage}</p>}
+
                             <div className="mt-4 w-full bg-gray-200 rounded-full h-4">
                                 <div
                                     className="bg-green-500 h-full rounded-full"
@@ -367,54 +392,65 @@ const handleContentSelect = (content) => {
                                 />
                             </div>
                         </div>
-            ) : 
-            
-            
-             selectedContent === 'Customer sign-off authority content...' ? ( // Matching with the actual content
-                <div>
-                    <h1 className='text-2xl mb-2'>Sign-off Authority</h1>
-                    <div className='flex justify-center'>
-                        <form onSubmit={handleSignOffSubmit} className="space-y-4 w-auto">
-                            {/* Input fields for customer sign-off authority */}
-                            <input type="text" placeholder="Customer Name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} required className="border p-2 rounded w-full" />
-                            <input type="text" placeholder="Project Name" value={projectName} onChange={(e) => setProjectName(e.target.value)} required className="border p-2 rounded w-full" />
-                            <input type="text" placeholder="Project Type" value={projectType} onChange={(e) => setProjectType(e.target.value)} required className="border p-2 rounded w-full" />
-                            <input type="text" placeholder="Warehouse Number" value={warehouseNumber} onChange={(e) => setWarehouseNumber(e.target.value)} required className="border p-2 rounded w-full" />
-                            <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Submit</button>
-                        </form>
+                    ) :
+
+
+                        selectedContent === 'Customer sign-off authority content...' ? ( // Matching with the actual content
+                            <div>
+                                <h1 className='text-2xl mb-2'>Sign-off Authority</h1>
+                                <div className='flex justify-center'>
+                                    <form onSubmit={handleSignOffSubmit} className="space-y-4 w-auto">
+                                        {/* Input fields for customer sign-off authority */}
+                                        <input type="text" placeholder="Customer Name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} required className="border p-2 rounded w-full" />
+                                        <input type="text" placeholder="Project Name" value={projectName} onChange={(e) => setProjectName(e.target.value)} required className="border p-2 rounded w-full" />
+                                        <input type="text" placeholder="Project Type" value={projectType} onChange={(e) => setProjectType(e.target.value)} required className="border p-2 rounded w-full" />
+                                        <input type="text" placeholder="Warehouse Number" value={warehouseNumber} onChange={(e) => setWarehouseNumber(e.target.value)} required className="border p-2 rounded w-full" />
+                                        <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Submit</button>
+                                    </form>
+                                </div>
+                            </div>
+                        ) :
+
+
+
+                            (
+                                <p>{selectedContent==="-" || 'No content selected...'}</p>
+                            )}
+                </div>
+            </div>
+
+
+            {/* Right Sidebar with Document Preview */}
+            {isPreviewVisible ? (
+        <div className="w-1/3 bg-gray-50 p-6 space-y-4 border-l border-gray-300 shadow-lg" style={{ maxHeight: '100vh' }}>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-700">Document Preview</h2>
+                {/* Close Button */}
+                <button
+                    onClick={handleClosePreview}
+                    className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                >
+                    &#x2715;
+                </button>
+            </div>
+
+            <div className="bg-white rounded-lg overflow-hidden shadow-inner h-full flex items-center justify-center">
+                {previewDocument ? (
+                    <iframe
+                        src={previewDocument}
+                        title="Document Preview"
+                        className="w-full h-full rounded-lg border-none"
+                        style={{ minHeight: '250px' }}
+                    />
+                ) : (
+                    <div className="flex text-gray-500">
+                        <p>No template selected. Please select a template to preview the document.</p>
                     </div>
-                </div>
-            ) : 
-            
-            
-            
-            (
-                <p>{selectedContent || 'No content selected...'}</p>
-            )}
+                )}
+            </div>
         </div>
-    </div>
-
-
-    {/* Right Sidebar with Document Preview */ }
-    <div className="w-1/3 bg-gray-50 p-6 space-y-4 border-l border-gray-300 shadow-lg" style={{ maxHeight: '100vh' }}>
-        <h2 className="text-xl font-bold text-gray-700 mb-4">Document Preview</h2>
-
-        <div className="bg-white rounded-lg overflow-hidden shadow-inner h-full flex items-center justify-center">
-            {previewDocument ? (
-                <iframe
-                    src={previewDocument}
-                    title="Document Preview"
-                    
-                    className="w-full h-full rounded-lg border-none"
-                    style={{ minHeight: '250px' }}
-                />
-            ) : (
-                <div className="flex text-gray-500">
-                    <p>No template selected. Please select a template to preview the document.</p>
-                </div>
-            )}
-        </div>
-    </div>
+    ) : null
+    }
         </div >
     );
 }
