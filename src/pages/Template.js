@@ -12,8 +12,8 @@ import { CgTemplate } from "react-icons/cg";
 // Sample data for document templates
 const templates = [
     { id: 1, name: '1', document: docu },
-    { id: 2, name: '2', document: doc2 },
-    { id: 3, name: '3', document: docu },
+    { id: 2, name: '2', document: docu},
+    { id: 3, name: '3', document: docu},
     { id: 4, name: 'Add', document: doc1 },  // Integrated Template 4
 ];
 
@@ -130,9 +130,8 @@ function Template() {
         setSelectedTemplate(id);
         const selected = templates.find(template => template.id === id);
         if (selected) {
-            const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(selected.document)}&embedded=true`;
-            console.log('Viewer URL:', viewerUrl);
-            setPreviewDocument(viewerUrl);
+            
+            setPreviewDocument(selected.document);
 
             // Automatically navigate to WordEditor if Template 4 is selected
             if (id === 4) {
@@ -400,7 +399,7 @@ const handleContentSelect = (content) => {
     <div className="w-1/3 bg-gray-50 p-6 space-y-4 border-l border-gray-300 shadow-lg" style={{ maxHeight: '100vh' }}>
         <h2 className="text-xl font-bold text-gray-700 mb-4">Document Preview</h2>
 
-        {/* <div className="bg-white rounded-lg overflow-hidden shadow-inner h-full flex items-center justify-center">
+        <div className="bg-white rounded-lg overflow-hidden shadow-inner h-full flex items-center justify-center">
             {previewDocument ? (
                 <iframe
                     src={previewDocument}
@@ -410,11 +409,11 @@ const handleContentSelect = (content) => {
                     style={{ minHeight: '250px' }}
                 />
             ) : (
-                <div className="flex items-center justify-center text-gray-500">
+                <div className="flex text-gray-500">
                     <p>No template selected. Please select a template to preview the document.</p>
                 </div>
             )}
-        </div> */}
+        </div>
     </div>
         </div >
     );
