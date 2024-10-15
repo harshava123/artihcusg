@@ -7,7 +7,7 @@ function Header() {
       
                 <img src={logo} alt="logo" width={200} height={100} />
             
-        <h1 className='flex text-3xl font-serif'>Artihcus Global</h1>
+        <h1 className='flex text-3xl font-serif'></h1>
       </div>
     );
 }

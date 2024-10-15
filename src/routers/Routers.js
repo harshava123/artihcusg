@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
 import Final from '../pages/Final';
+import ProgressBar from '../pages/ProgressBar';
 import Header from '../components/Header/Header';
 import Template from '../pages/Template';
 import Detail from '../pages/Detail';
@@ -17,6 +18,7 @@ function Routers() {
         <Route path="/detail" element={<Detail />} />
         <Route path="/preview" element={<Preview/>}/>
         <Route path="/editor" element={<WordEditor />} />
+        
       </Routes>
     </Router>
   );

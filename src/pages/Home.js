@@ -32,7 +32,7 @@ function Home() {
 
                 <Link className="flex flex-col items-center justify-center p-6 w-64 h- rounded-lg shadow-lg hover:bg-green-100 transition duration-300">
                     <IoTimerOutline className="text-4xl mb-3 text-green-500" />
-                    <h2 className="font">No Coding Required: Customize your templates without any coding skills.</h2>
+                    <h2 className="font"> Customize your templates.</h2>
                 </Link>
 
                 <Link className="flex flex-col items-center justify-center p-6 w-52 h- rounded-lg shadow-lg hover:bg-purple-100 transition duration-300">

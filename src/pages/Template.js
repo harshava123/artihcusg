@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ProgressBar from '../pages/ProgressBar';
 import { useNavigate } from 'react-router-dom';
 import "../App.css";
 import template1 from "../images/template1.png";
@@ -102,13 +103,18 @@ function Template() {
         console.log('Close button clicked'); // Debugging log
         setIsPreviewVisible(false);
     };
+    const togglePreviewVisibility = () => {
+        setIsPreviewVisible(prev => !prev);
+    };
+    
+
     const handleMouseDown = (e) => {
         setIsResizing(true);
     };
-        // Function to handle closing the selected content
-        const handleCloseContent = () => {
-            setSelectedContent('No content selected'); // Reset selected content
-        };
+    // Function to handle closing the selected content
+    const handleCloseContent = () => {
+        setSelectedContent('No content selected'); // Reset selected content
+    };
 
     const handleMouseMove = (e) => {
         if (isResizing) {
@@ -125,6 +131,8 @@ function Template() {
     const stopResizing = () => {
         setIsResizing(false);
     };
+    
+    
 
     const handleResize = (e) => {
         if (isResizing) {
@@ -135,20 +143,20 @@ function Template() {
         }
     };
     // Handle template selection
-   // Handle template selection
-const handleTemplateSelect = (id) => {
-    setSelectedTemplate(id);
-    const selected = templates.find(template => template.id === id);
-    if (selected) {
-        setPreviewDocument(selected.document);
-        setIsPreviewVisible(true); // Show the preview section when a template is clicked
+    // Handle template selection
+    const handleTemplateSelect = (id) => {
+        setSelectedTemplate(id);
+        const selected = templates.find(template => template.id === id);
+        if (selected) {
+            setPreviewDocument(selected.document);
+            setIsPreviewVisible(true); // Show the preview section when a template is clicked
 
-        // Automatically navigate to WordEditor if Template 4 is selected
-        if (id === 4) {
-            navigate('/editor', { state: { templateId: id } });
+            // Automatically navigate to WordEditor if Template 4 is selected
+            if (id === 4) {
+                navigate('/editor', { state: { templateId: id } });
+            }
         }
-    }
-};
+    };
 
 
     // Toggle section for showing sub-headings or sub-sub-headings
@@ -330,20 +338,43 @@ const handleTemplateSelect = (id) => {
             <div className="w-1 bg-gray-400 cursor-col-resize" onMouseDown={startResizing}></div>
 
             {/* Center Panel for Content Display */}
-            <div className="flex-grow p-4 w-full flex justify-center ">
-                <div className="text-center">
-                    <h2 className="text-xl font-bold mb-4">Selected Section</h2>
-                     <div className="flex justify-between items-center">
-                        <h3 className="text-lg">{selectedContent ? selectedContent : ""}</h3>
-                        {selectedContent && (
-                            <button
-                                onClick={handleCloseContent}
-                                className="text-gray-500 hover:text-gray-700 focus:outline-none"
-                                >
-                                    &#x2715;
-                            </button>
-                        )}
+            <div className="flex justify-center items-center bg-gradient-to-r p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full" style={{ marginTop: '-380px' }}>
+                    <div className="bg-gradient-to-r from-orange-400 to-orange-500 p-4 rounded-2xl shadow-lg border border-gray-900" style={{ height: '150px', width: '150px' }}>
+                        <pre className="bg-gray-900 text-orange-100 p-2 rounded-lg shadow-inner overflow-auto h-full break-words whitespace-pre-wrap">
+                            <code className="flex justify-center block font-mono text-sm leading-relaxed" style={{ marginTop: '32px' }}>
+                                Tile1
+                            </code>
+                        </pre>
                     </div>
+
+                    <div className="bg-gradient-to-r from-orange-400 to-orange-500 p-4 rounded-2xl shadow-lg border border-gray-900" style={{ height: '150px', width: '150px' }}>
+                        <pre className="bg-gray-900 text-orange-100 p-2 rounded-lg shadow-inner overflow-auto h-full break-words whitespace-pre-wrap">
+                            <code className="flex justify-center block font-mono text-sm leading-relaxed" style={{ marginTop: '32px' }}>
+                                Tile2
+                            </code>
+                        </pre>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-orange-400 to-orange-500 p-4 rounded-2xl shadow-lg border border-gray-900" style={{ height: '150px', width: '150px' }}>
+                        <pre className="bg-gray-900 text-orange-100 p-2 rounded-lg shadow-inner overflow-auto h-full break-words whitespace-pre-wrap">
+                            <code className="flex justify-center block font-mono text-sm leading-relaxed" style={{ marginTop: '32px' }}>
+                                Tile3
+                            </code>
+                        </pre>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-orange-400 to-orange-500 p-4 rounded-2xl shadow-lg border border-gray-900" style={{ height: '150px', width: '150px' }}>
+                        <pre className="bg-gray-900 text-orange-100 p-2 rounded-lg shadow-inner overflow-auto h-full break-words whitespace-pre-wrap">
+                            <code className="flex justify-center block font-mono text-sm leading-relaxed" style={{ marginTop: '32px' }}>
+                                Tile4
+                            </code>
+                        </pre>
+                    </div>
+
+
+
+
                     {(selectedContent === 'Logo' || selectedContent === 'Vendor logo content...') ? (
                         <div className='flex flex-col justify-center items-center mt-16'>
                             <div
@@ -414,43 +445,52 @@ const handleTemplateSelect = (id) => {
 
 
                             (
-                                <p>{selectedContent==="-" || 'No content selected...'}</p>
+                                <p>{selectedContent === "-" || 'No content selected...'}</p>
                             )}
                 </div>
             </div>
 
 
             {/* Right Sidebar with Document Preview */}
-            {isPreviewVisible ? (
-        <div className="w-1/3 bg-gray-50 p-6 space-y-4 border-l border-gray-300 shadow-lg" style={{ maxHeight: '100vh' }}>
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-700">Document Preview</h2>
-                {/* Close Button */}
-                <button
-                    onClick={handleClosePreview}
-                    className="text-gray-500 hover:text-gray-700 focus:outline-none"
-                >
-                    &#x2715;
-                </button>
+            <div className={`fixed right-0 top-0 h-full transition-transform duration-300 ${isPreviewVisible ? 'translate-x-0' : 'translate-x-full'}`}>
+                <div className="w-1/3 bg-gray-50 p-6 space-y-4 border-l border-gray-300 shadow-lg" style={{ maxHeight: '100vh' }}>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold text-gray-700">Document Preview</h2>
+                        {/* Slide Arrow Button */}
+                        <button
+                            onClick={togglePreviewVisibility}
+                            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                        >
+                            <span className="text-2xl">&lt;</span> {/* Arrow icon */}
+                        </button>
+                    </div>
+                    {/* Document Preview Content */}
+                    <div className="bg-white rounded-lg overflow-hidden shadow-inner flex items-center justify-center">
+                        {previewDocument ? (
+                            <iframe
+                                src={previewDocument}
+                                title="Document Preview"
+                                className="w-full h-full rounded-lg border-none"
+                                style={{ minHeight: '250px' }}
+                            />
+                        ) : (
+                            <div className="flex items-center justify-center text-gray-500">
+                                <p>No template selected. Please select a template to preview the document.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
 
-            <div className="bg-white rounded-lg overflow-hidden shadow-inner h-full flex items-center justify-center">
-                {previewDocument ? (
-                    <iframe
-                        src={previewDocument}
-                        title="Document Preview"
-                        className="w-full h-full rounded-lg border-none"
-                        style={{ minHeight: '250px' }}
-                    />
-                ) : (
-                    <div className="flex text-gray-500">
-                        <p>No template selected. Please select a template to preview the document.</p>
-                    </div>
-                )}
-            </div>
-        </div>
-    ) : null
-    }
+            {/* Toggle Button on the Right Side */}
+            <button
+                onClick={togglePreviewVisibility}
+                className={`fixed right-0 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white rounded-full p-2 transition-transform duration-300 ${isPreviewVisible ? 'translate-x-full' : 'translate-x-0'}`}
+            >
+                <span className="text-2xl">&gt;</span> {/* Arrow icon */}
+            </button>
+
+
         </div >
     );
 }
